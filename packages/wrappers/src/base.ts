@@ -15,7 +15,6 @@ import {
   createLogger,
   maskSensitiveInfo,
 } from '@aiostreams/utils';
-const response = await fetch(url);
 import { emojiToLanguage, codeToLanguage } from '@aiostreams/formatters';
 
 const logger = createLogger('wrappers');
@@ -155,13 +154,15 @@ export class BaseWrapper {
       )}${redactedParts.length ? '/' : ''}${pathParts.slice(-3).join('/')}`;
   }
 
-  protected makeRequest(url: string): Promise<any> {
-    const userIp = this.userConfig.requestingIp;
-    if (userIp) {
-      for (const header of IP_HEADERS) {
-        this.headers.set(header, userIp);
-      }
-    }
+protected async makeRequest(url: string): Promise<Response> {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: this.headers,
+    signal: AbortSignal.timeout(this.indexerTimeout),
+  });
+
+  return response;
+}
 
     let sanitisedUrl = this.getLoggableUrl(url);
     let useProxy = this.shouldProxyRequest(url);
