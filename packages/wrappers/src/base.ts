@@ -28,6 +28,7 @@ const IP_HEADERS = [
   'Forwarded-For',
 ];
 
+
 export class BaseWrapper {
   private readonly streamPath: string = 'stream/{type}/{id}.json';
   private indexerTimeout: number;
@@ -154,37 +155,38 @@ export class BaseWrapper {
       )}${redactedParts.length ? '/' : ''}${pathParts.slice(-3).join('/')}`;
   }
 
- protected async makeRequest(url: string): Promise<Response> {
-    const userIp = this.userConfig.requestingIp;
-    if (userIp) {
-      for (const headerName of IP_HEADERS) {
-        this.headers.set(headerName, userIp);
-      }
+protected async makeRequest(url: string): Promise<Response> {
+  // 1. Adaugă antetele de IP
+  const userIp = this.userConfig.requestingIp;
+  if (userIp) {
+    for (const headerName of IP_HEADERS) {
+      this.headers.set(headerName, userIp);
     }
-
-    const sanitisedUrl = this.getLoggableUrl(url);
-    const useProxy = this.shouldProxyRequest(url);
-
-    logger.info(
-      `Making a ${useProxy ? 'proxied' : 'direct'} request to ${this.addonName} (${sanitisedUrl}) with user IP ${
-        userIp ? maskSensitiveInfo(userIp) : 'not set'
-      }`
-    );
-    logger.debug(
-      `Request Headers: ${maskSensitiveInfo(
-        JSON.stringify(Object.fromEntries(this.headers.entries()))
-      )}`
-    );
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.headers,
-      signal: AbortSignal.timeout(this.indexerTimeout),
-    });
-
-    return response;
   }
 
+  // 2. Pregătește logging-ul
+  const sanitisedUrl = this.getLoggableUrl(url);
+  const useProxy = this.shouldProxyRequest(url);
+  logger.info(
+    `Making a ${useProxy ? 'proxied' : 'direct'} request to ${this.addonName} (` +
+      `${sanitisedUrl}) with user IP ${userIp ? maskSensitiveInfo(userIp) : 'not set'}`
+  );
+  logger.debug(
+    `Request Headers: ${maskSensitiveInfo(
+      JSON.stringify(Object.fromEntries(this.headers.entries()))
+    )}`
+  );
+
+  // 3. Efectuează efectiv fetch-ul
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: this.headers,
+    signal: AbortSignal.timeout(this.indexerTimeout),
+  });
+
+  return response;
+}
+  
   protected async getStreams(streamRequest: StreamRequest): Promise<Stream[]> {
     const url = this.getStreamUrl(streamRequest);
     const cache = this.userConfig.instanceCache;
