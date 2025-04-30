@@ -3,6 +3,8 @@ name = "aiostreams"
 main = "src/index.ts"
 compatibility_date = "2024-12-24"
 compatibility_flags = ["nodejs_compat"]
+account_id = "dcbc170e437b2f5d906098518c45ca1e"
+zone_id = "a4d814fd0812748c588602d938de1803"
 route = "dragos.cfd/*"
 assets = { directory = "../frontend/out", binding = "ASSETS", experimental_serve_directly = false}
 
