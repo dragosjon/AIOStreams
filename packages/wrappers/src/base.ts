@@ -174,18 +174,11 @@ export class BaseWrapper {
       `Request Headers: ${maskSensitiveInfo(JSON.stringify(Object.fromEntries(this.headers)))}`
     );
 
-    let response = useProxy
-      ? uFetch(url, {
-          dispatcher: new ProxyAgent(Settings.ADDON_PROXY),
-          method: 'GET',
-          headers: this.headers,
-          signal: AbortSignal.timeout(this.indexerTimeout),
-        })
-      : fetch(url, {
-          method: 'GET',
-          headers: this.headers,
-          signal: AbortSignal.timeout(this.indexerTimeout),
-        });
+    let response = await fetch(url, {
+  method: 'GET',
+  headers,
+  signal: AbortSignal.timeout(this.indexerTimeout),
+});
 
     return response;
   }
