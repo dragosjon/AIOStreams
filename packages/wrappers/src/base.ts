@@ -154,7 +154,7 @@ export class BaseWrapper {
       )}${redactedParts.length ? '/' : ''}${pathParts.slice(-3).join('/')}`;
   }
 
-  protected async makeRequest(url: string): Promise<Response> {
+ protected async makeRequest(url: string): Promise<Response> {
     const userIp = this.userConfig.requestingIp;
     if (userIp) {
       for (const headerName of IP_HEADERS) {
