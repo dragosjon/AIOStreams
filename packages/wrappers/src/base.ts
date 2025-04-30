@@ -154,18 +154,16 @@ export class BaseWrapper {
       )}${redactedParts.length ? '/' : ''}${pathParts.slice(-3).join('/')}`;
   }
 
-protected async makeRequest(url: string): Promise<Response> {
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: this.headers,
-    signal: AbortSignal.timeout(this.indexerTimeout),
-  });
+  protected async makeRequest(url: string): Promise<Response> {
+    const userIp = this.userConfig.requestingIp;
+    if (userIp) {
+      for (const headerName of IP_HEADERS) {
+        this.headers.set(headerName, userIp);
+      }
+    }
 
-  return response;
-}
-
-    let sanitisedUrl = this.getLoggableUrl(url);
-    let useProxy = this.shouldProxyRequest(url);
+    const sanitisedUrl = this.getLoggableUrl(url);
+    const useProxy = this.shouldProxyRequest(url);
 
     logger.info(
       `Making a ${useProxy ? 'proxied' : 'direct'} request to ${this.addonName} (${sanitisedUrl}) with user IP ${
@@ -173,17 +171,20 @@ protected async makeRequest(url: string): Promise<Response> {
       }`
     );
     logger.debug(
-      `Request Headers: ${maskSensitiveInfo(JSON.stringify(Object.fromEntries(this.headers)))}`
+      `Request Headers: ${maskSensitiveInfo(
+        JSON.stringify(Object.fromEntries(this.headers.entries()))
+      )}`
     );
 
-    let response = await fetch(url, {
-  method: 'GET',
-  headers,
-  signal: AbortSignal.timeout(this.indexerTimeout),
-});
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: this.headers,
+      signal: AbortSignal.timeout(this.indexerTimeout),
+    });
 
     return response;
   }
+
   protected async getStreams(streamRequest: StreamRequest): Promise<Stream[]> {
     const url = this.getStreamUrl(streamRequest);
     const cache = this.userConfig.instanceCache;
