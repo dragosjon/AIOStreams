@@ -15,6 +15,7 @@ import {
   createLogger,
   maskSensitiveInfo,
 } from '@aiostreams/utils';
+const response = await fetch(url);
 import { emojiToLanguage, codeToLanguage } from '@aiostreams/formatters';
 
 const logger = createLogger('wrappers');
