@@ -46,6 +46,11 @@ export interface ParsedStream extends ParsedNameData {
   indexers?: string;
   releaseGroup: string;
   personal?: boolean;
+  regexMatched?: {
+    pattern: string;
+    name?: string;
+    index: number;
+  };
   stream?: {
     subtitles?: Subtitle[];
     behaviorHints?: {
@@ -135,7 +140,6 @@ export interface CustomFormatter {
 export interface Config {
   apiKey?: string;
   overrideName?: string;
-  instanceCache?: any;
   requestingIp?: string;
   resolutions: Resolution[];
   qualities: Quality[];
@@ -167,6 +171,14 @@ export interface Config {
     mediaFlowEnabled: boolean;
     proxyUrl: string;
     apiPassword: string;
+    publicIp: string;
+    proxiedAddons: string[] | null;
+    proxiedServices: string[] | null;
+  };
+  stremThruConfig?: {
+    stremThruEnabled: boolean;
+    url: string;
+    credential: string;
     publicIp: string;
     proxiedAddons: string[] | null;
     proxiedServices: string[] | null;
